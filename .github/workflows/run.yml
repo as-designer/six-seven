@@ -1,0 +1,34 @@
+name: Flutter Web Quality Assurance
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  run-web-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repository Code
+        uses: actions/checkout@v4
+
+      - name: Setup Headless Chrome Sandbox
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Resolve Project Dependencies
+        run: flutter pub get
+
+      - name: Execute Flutter Web Tests
+        # Runs your test scripts inside a headless Chrome environment
+        run: flutter test --platform chrome
