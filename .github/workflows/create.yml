@@ -20,7 +20,7 @@ jobs:
       - name: Create Flutter App with Web Flag
         run: |
           # Creates a project structure ensuring the web directory exists
-          flutter create . --platforms=web --force
+          flutter create . --platforms=web
           
       - name: Verify Web Directory Existence
         run: |
