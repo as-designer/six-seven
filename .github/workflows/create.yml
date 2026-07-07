@@ -1,0 +1,31 @@
+name: Bootstrap Web Project
+
+on:
+  workflow_dispatch: # Allows you to trigger this manually from the GitHub Actions tab
+
+jobs:
+  create-web-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repository Code
+        uses: actions/checkout@v4
+
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Create Flutter App with Web Flag
+        run: |
+          # Creates a project structure ensuring the web directory exists
+          flutter create . --platforms=web --force
+          
+      - name: Verify Web Directory Existence
+        run: |
+          if [ -d "web" ]; then
+            echo "Web directory initialized successfully."
+          else
+            echo "Error: Web template directory missing!" && exit 1
+          fi
