@@ -1,0 +1,49 @@
+name: Compress Flutter SDK for Local Download
+
+on:
+  workflow_dispatch: # Allows you to manually trigger this and type the version you want
+    inputs:
+      flutter_version:
+        description: 'Target Flutter Version (e.g., 3.44.1)'
+        required: true
+        default: '3.44.1'
+
+permissions:
+  contents: write # Required to create the release and upload the file
+
+jobs:
+  build-compressed-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Clone only the requested version without downloading centuries of git history
+      - name: Clone Flutter SDK
+        run: |
+          git clone --depth 1 --branch ${{ github.event.inputs.flutter_version }} https://github.com
+          
+      # 2. Force download ALL Android, Web, and Windows development binaries on GitHub's network
+      - name: Run Precache (Download Core Binaries)
+        run: |
+          cd flutter
+          ./bin/flutter precache --all
+          
+      # 3. Clean up internal lockfiles or temporary setup bits to avoid corrupt paths
+      - name: Prep Folder
+        run: |
+          rm -rf flutter/.github
+          rm -f flutter/bin/cache/shasum
+
+      # 4. Pack into an Ultra-compressed 7z archive using LZMA2
+      - name: Compress with 7z Ultra
+        run: |
+          sudo apt-get update && sudo apt-get install -y p7zip-full
+          7z a -mx=9 -m0=lzma2 flutter_sdk_${{ github.event.inputs.flutter_version }}.7z flutter/
+
+      # 5. Push the compressed file to a GitHub Release so you can download it via browser
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.flutter_version }}-lowdata
+          name: Flutter ${{ github.event.inputs.flutter_version }} Compressed Bundle
+          files: flutter_sdk_${{ github.event.inputs.flutter_version }}.7z
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
