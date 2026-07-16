@@ -18,7 +18,7 @@ jobs:
       # 1. Clone only the requested version without downloading centuries of git history
       - name: Clone Flutter SDK
         run: |
-          git clone --depth 1 --branch ${{ github.event.inputs.flutter_version }} https://github.com
+          git clone --depth 1 --branch ${{ github.event.inputs.flutter_version }} https://github.com/flutter/flutter.git
           
       # 2. Force download ALL Android, Web, and Windows development binaries on GitHub's network
       - name: Run Precache (Download Core Binaries)
